@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:progress_bar/drawView.dart';
-import 'package:progress_bar/imageView.dart';
-import 'package:progress_bar/listView.dart';
-import 'package:progress_bar/textView.dart';
+import 'package:progress_bar/bloc/main_bloc.dart';
+import 'package:progress_bar/event/main_event.dart';
+import 'package:progress_bar/state/main_state.dart';
+import '../page/drawView.dart';
+import '../page/imageView.dart';
+import '../page/listView.dart';
+import '../page/textView.dart';
 
 StreamController<bool> isLightTheme = StreamController();
 
@@ -47,24 +50,52 @@ class SampleAppPage extends StatefulWidget {
 }
 
 class _SampleAppPageState extends State<SampleAppPage> {
-  List<String> widgets = [];
+  final bloc = MainBloc();
   bool isLight = false;
 
   @override
   void initState() {
     super.initState();
-    addItemToWidgets();
+    //addItemToWidgets();
   }
 
-  showLoadingDialog() {
-    return widgets.length == 0;
+  addItemToWidgets() async {
+    bloc.eventController.sink.add(AddPage('List View With Progress'));
+    await Future.delayed(Duration(seconds: 1));
+    bloc.eventController.sink.add(AddPage('Image View'));
+    await Future.delayed(Duration(seconds: 2));
+    bloc.eventController.sink.add(AddPage('Draw View'));
+    await Future.delayed(Duration(seconds: 3));
+    bloc.eventController.sink.add(AddPage('Text Edit View'));
   }
 
-  addItemToWidgets() {
-    widgets.add('List View With Progress');
-    widgets.add('Image View');
-    widgets.add('Draw View');
-    widgets.add('Text Edit View');
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Sample App"),
+        ),
+        body: getBody(),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: "btnAdd",
+              child: Icon(Icons.add),
+              onPressed: () {
+                addItemToWidgets();
+              },
+            ),
+            SizedBox(height: 10),
+            FloatingActionButton(
+              heroTag: "btnRemove",
+              child: Icon(Icons.remove),
+              onPressed: () {
+                bloc.eventController.sink.add(RemovePage());
+              },
+            ),
+          ],
+        ));
   }
 
   getBody() {
@@ -72,7 +103,7 @@ class _SampleAppPageState extends State<SampleAppPage> {
       child: Column(
         children: [
           Expanded(
-            child: getListView(),
+            child: getListViewWithStream(),
           ),
           Switch(
             value: isLight,
@@ -89,22 +120,23 @@ class _SampleAppPageState extends State<SampleAppPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Sample App"),
-        ),
-        body: getBody());
+  Widget getListViewWithStream() {
+    return StreamBuilder<MainState>(
+      initialData: bloc.state,
+      stream: bloc.stateController.stream,
+      builder: (BuildContext context, AsyncSnapshot<MainState> snapshot) {
+        return getListView(snapshot.data.widgets);
+      },
+    );
   }
 
-  ListView getListView() => ListView.builder(
+  ListView getListView(List<String> widgets) => ListView.builder(
       itemCount: widgets.length,
       itemBuilder: (BuildContext context, int position) {
-        return getRow(position);
+        return getRow(position, widgets);
       });
 
-  Widget getRow(int i) {
+  Widget getRow(int i, List<String> widgets) {
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: Column(

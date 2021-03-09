@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:progress_bar/bloc/text_view_bloc.dart';
+import 'package:progress_bar/state/text_view_state.dart';
+import 'package:progress_bar/event/text_view_event.dart';
 
 class TextEditViewSample extends StatefulWidget {
   TextEditViewSample({Key key}) : super(key: key);
@@ -8,11 +11,7 @@ class TextEditViewSample extends StatefulWidget {
 }
 
 class _TextEditViewSampleState extends State<TextEditViewSample> {
-  double _currentSlidervalue = 20.0;
-  int _red = 0;
-  int _green = 0;
-  int _blue = 0;
-  double _opacity = 1.0;
+  final bloc = TextViewBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -20,31 +19,43 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
       appBar: AppBar(
         title: Text('Text Editor Sample'),
       ),
-      body: getBody(),
+      body: bodyWithStream(),
     );
   }
 
-  getBody() {
+  Widget bodyWithStream() {
+    return StreamBuilder(
+      initialData: bloc.state,
+      stream: bloc.stateController.stream,
+      builder: (BuildContext context, AsyncSnapshot<TextViewState> snapshot) {
+        return getBody(snapshot.data);
+      },
+    );
+  }
+
+//Todos
+  getBody(TextViewState data) {
     return Container(
       child: Column(
         children: [
-          showText(),
+          showText(data),
           //Size
           Padding(
               padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: Text('Size:'),
+                child: Text('Size: ${data.size}'),
               )),
           Slider(
-            value: _currentSlidervalue,
+            value: data.size,
             min: 10.0,
             max: 40.0,
             divisions: 40,
             onChanged: (double value) {
-              setState(() {
-                _currentSlidervalue = value;
-              });
+              // setState(() {
+              //   _currentSlidervalue = value;
+              // });
+              bloc.eventController.sink.add(ChangeTextSize(value));
             },
           ),
           //Red
@@ -52,18 +63,19 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
               padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: Text('Red:'),
+                child: Text('Red: ${data.red}'),
               )),
           Slider(
-            value: _red.toDouble(),
+            value: data.red.toDouble(),
             activeColor: Colors.red,
             min: 0,
             max: 255,
             divisions: 255,
             onChanged: (double value) {
-              setState(() {
-                _red = value.toInt();
-              });
+              // setState(() {
+              //   _red = value.toInt();
+              // });
+              bloc.eventController.sink.add(ChangeTextColorRed(value.toInt()));
             },
           ),
           //Green
@@ -71,18 +83,20 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
               padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: Text('Green:'),
+                child: Text('Green: ${data.green}'),
               )),
           Slider(
-            value: _green.toDouble(),
+            value: data.green.toDouble(),
             activeColor: Colors.green,
             min: 0,
             max: 255,
             divisions: 255,
             onChanged: (double value) {
-              setState(() {
-                _green = value.toInt();
-              });
+              // setState(() {
+              //   _green = value.toInt();
+              // });
+              bloc.eventController.sink
+                  .add(ChangeTextColorGreen(value.toInt()));
             },
           ),
           //Blue
@@ -90,18 +104,19 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
               padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: Text('Blue:'),
+                child: Text('Blue: ${data.blue}'),
               )),
           Slider(
-            value: _blue.toDouble(),
+            value: data.blue.toDouble(),
             activeColor: Colors.blue,
             min: 0,
             max: 255,
             divisions: 255,
             onChanged: (double value) {
-              setState(() {
-                _blue = value.toInt();
-              });
+              // setState(() {
+              //   _blue = value.toInt();
+              // });
+              bloc.eventController.sink.add(ChangeTextColorBlue(value.toInt()));
             },
           ),
           //Opacity
@@ -109,18 +124,19 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
               padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: Text('Opacity:'),
+                child: Text('Opacity: ${data.opacity}'),
               )),
           Slider(
-            value: _opacity.toDouble(),
+            value: data.opacity,
             activeColor: Colors.black,
             min: 0,
             max: 1,
             divisions: 100,
             onChanged: (double value) {
-              setState(() {
-                _opacity = value;
-              });
+              // setState(() {
+              //   _opacity = value;
+              // });
+              bloc.eventController.sink.add(ChangeTextOpacity(value));
             },
           ),
         ],
@@ -128,15 +144,16 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
     );
   }
 
-  showText() {
+  showText(TextViewState data) {
     return Text(
       'Edit me please!',
       style: TextStyle(
-        fontSize: _currentSlidervalue,
-        color: getColor(),
+        fontSize: data.size,
+        color: getColor(data),
       ),
     );
   }
 
-  Color getColor() => Color.fromRGBO(_red, _green, _blue, _opacity);
+  Color getColor(TextViewState data) =>
+      Color.fromRGBO(data.red, data.green, data.blue, data.opacity);
 }
