@@ -98,7 +98,7 @@ class _SampleAppPageState extends State<SampleAppPage> {
         ));
   }
 
-  getBody() {
+  Widget getBody() {
     return Container(
       child: Column(
         children: [
