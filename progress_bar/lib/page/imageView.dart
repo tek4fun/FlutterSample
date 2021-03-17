@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ImageViewSample extends StatefulWidget {
-  ImageViewSample({Key key}) : super(key: key);
+  ImageViewSample({Key? key}) : super(key: key);
 
   @override
   _ImageViewSampleState createState() => _ImageViewSampleState();

@@ -1,9 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:progress_bar/Model/cart.dart';
+import 'package:progress_bar/Model/catalog.dart';
 import 'package:progress_bar/bloc/main_bloc.dart';
 import 'package:progress_bar/event/main_event.dart';
+import 'package:progress_bar/page/cart.dart';
+import 'package:progress_bar/page/catalogView.dart';
 import 'package:progress_bar/state/main_state.dart';
+import 'package:provider/provider.dart';
 import '../page/drawView.dart';
 import '../page/imageView.dart';
 import '../page/listView.dart';
@@ -18,17 +23,39 @@ void main() {
 class SampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      initialData: false,
-      stream: isLightTheme.stream,
-      builder: (context, snapshot) {
-        return MaterialApp(
-          title: 'Sample App',
-          theme: setTheme(snapshot.data),
-          home: SampleAppPage(),
-        );
-      },
-    );
+    return MultiProvider(
+        providers: [
+          Provider(create: (context) => CatalogModel()),
+          ChangeNotifierProxyProvider<CatalogModel, CartModel>(
+            create: (context) => CartModel(),
+            update: (context, catalog, cart) {
+              if (cart == null) throw ArgumentError.notNull('cart');
+              cart.catalog = catalog;
+              return cart;
+            },
+          )
+        ],
+        child: StreamBuilder<bool>(
+          initialData: false,
+          stream: isLightTheme.stream,
+          builder: (context, snapshot) {
+            return MaterialApp(
+              title: 'Sample App',
+              theme: setTheme(snapshot.data ?? false),
+              initialRoute: '/',
+              routes: {
+                '/': (context) => SampleAppPage(),
+                '/list': (context) => ListViewSample(),
+                '/image': (context) => ImageViewSample(),
+                '/draw': (context) => DrawViewSample(),
+                '/text': (context) => TextEditViewSample(),
+                '/catalog': (context) => CatalogView(),
+                '/cart': (context) => CartView(),
+              },
+              //home: SampleAppPage(),
+            );
+          },
+        ));
   }
 
   setTheme(bool isLight) {
@@ -43,7 +70,7 @@ class SampleApp extends StatelessWidget {
 }
 
 class SampleAppPage extends StatefulWidget {
-  SampleAppPage({Key key}) : super(key: key);
+  SampleAppPage({Key? key}) : super(key: key);
 
   @override
   _SampleAppPageState createState() => _SampleAppPageState();
@@ -67,6 +94,7 @@ class _SampleAppPageState extends State<SampleAppPage> {
     bloc.eventController.sink.add(AddPage('Draw View'));
     await Future.delayed(Duration(seconds: 3));
     bloc.eventController.sink.add(AddPage('Text Edit View'));
+    bloc.eventController.sink.add(AddPage('Shopping Card View'));
   }
 
   @override
@@ -125,7 +153,7 @@ class _SampleAppPageState extends State<SampleAppPage> {
       initialData: bloc.state,
       stream: bloc.stateController.stream,
       builder: (BuildContext context, AsyncSnapshot<MainState> snapshot) {
-        return getListView(snapshot.data.widgets);
+        return getListView(snapshot.data!.widgets);
       },
     );
   }
@@ -158,28 +186,39 @@ class _SampleAppPageState extends State<SampleAppPage> {
   getFunction(int index) {
     switch (index) {
       case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ListViewSample()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => ListViewSample()),
+        // );
+        Navigator.pushNamed(context, '/list');
         break;
       case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ImageViewSample()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => ImageViewSample()),
+        // );
+        Navigator.pushNamed(context, '/image');
         break;
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => DrawViewSample()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => DrawViewSample()),
+        // );
+        Navigator.pushNamed(context, '/draw');
         break;
       case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => TextEditViewSample()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => TextEditViewSample()),
+        // );
+        Navigator.pushNamed(context, '/text');
+        break;
+      case 4:
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => CatalogView()),
+        // );
+        Navigator.pushNamed(context, '/catalog');
         break;
       default:
         break;

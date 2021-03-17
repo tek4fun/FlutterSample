@@ -4,7 +4,7 @@ import 'package:progress_bar/state/text_view_state.dart';
 import 'package:progress_bar/event/text_view_event.dart';
 
 class TextEditViewSample extends StatefulWidget {
-  TextEditViewSample({Key key}) : super(key: key);
+  TextEditViewSample({Key? key}) : super(key: key);
 
   @override
   _TextEditViewSampleState createState() => _TextEditViewSampleState();
@@ -28,7 +28,7 @@ class _TextEditViewSampleState extends State<TextEditViewSample> {
       initialData: bloc.state,
       stream: bloc.stateController.stream,
       builder: (BuildContext context, AsyncSnapshot<TextViewState> snapshot) {
-        return getBody(snapshot.data);
+        return getBody(snapshot.data!);
       },
     );
   }

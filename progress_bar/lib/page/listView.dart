@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ListViewSample extends StatefulWidget {
-  ListViewSample({Key key}) : super(key: key);
+  ListViewSample({Key? key}) : super(key: key);
 
   @override
   _ListViewSampleState createState() => _ListViewSampleState();
 }
 
 class _ListViewSampleState extends State<ListViewSample> {
-  List widgets = [];
+  List? widgets = [];
 
   @override
   void initState() {
@@ -19,7 +19,7 @@ class _ListViewSampleState extends State<ListViewSample> {
   }
 
   showLoadingDialog() {
-    return widgets.length == 0;
+    return widgets!.length == 0;
   }
 
   getBody() {
@@ -44,7 +44,7 @@ class _ListViewSampleState extends State<ListViewSample> {
   }
 
   ListView getListView() => ListView.builder(
-      itemCount: widgets.length,
+      itemCount: widgets!.length,
       itemBuilder: (BuildContext context, int position) {
         return getRow(position);
       });
@@ -52,7 +52,7 @@ class _ListViewSampleState extends State<ListViewSample> {
   Widget getRow(int i) {
     return Padding(
       padding: EdgeInsets.all(10.0),
-      child: Text("Row ${widgets[i]["title"]}"),
+      child: Text("Row ${widgets![i]["title"]}"),
     );
   }
 
